@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leonardo-vinci-bot
+  namespace: default
+  labels:
+    app: leonardo-vinci-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leonardo-vinci-bot
+  template:
+    metadata:
+      labels:
+        app: leonardo-vinci-bot
+    spec:
+      containers:
+        - name: leonardo-vinci-bot
+          image: leonardo-vinci-bot:latest
+          imagePullPolicy: Never   # use local image (minikube / Docker Desktop)
+          envFrom:
+            - configMapRef:
+                name: leonardo-vinci-bot-config
+            - secretRef:
+                name: leonardo-vinci-bot-secret
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"

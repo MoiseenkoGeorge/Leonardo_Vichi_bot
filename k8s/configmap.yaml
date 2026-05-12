@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leonardo-vinci-bot-config
+  namespace: default
+data:
+  TicketChecker__TargetUrl: "https://cenacolovinciano.vivaticket.it/en/event/cenacolo-vinciano/151991"
+  TicketChecker__CheckIntervalMinutes: "5"
+  TicketChecker__TargetMonth: "5"
+  TicketChecker__TargetYear: "2026"

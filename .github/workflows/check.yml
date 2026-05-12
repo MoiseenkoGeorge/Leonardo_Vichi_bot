@@ -1,0 +1,37 @@
+name: Check ticket availability
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Build
+        run: dotnet build src/LeonardoVinciBot --configuration Release
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('**/LeonardoVinciBot.csproj') }}
+
+      - name: Install Playwright Chromium
+        run: pwsh src/LeonardoVinciBot/bin/Release/net10.0/playwright.ps1 install chromium --with-deps
+
+      - name: Run ticket check
+        env:
+          TELEGRAM__BOTTOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM__CHATID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TICKETCHECKER__RUNONCE: 'true'
+        run: dotnet run --project src/LeonardoVinciBot --configuration Release --no-build
