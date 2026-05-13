@@ -109,7 +109,7 @@ public class TicketCheckerService : IAsyncDisposable
             _logger.LogInformation("Available dates for {Month}: {Count}", monthName, availableDates.Count);
 
             if (availableDates.Count == 0)
-                return (false, $"No available dates for {monthName}");
+                return (false, $"No available dates for {string.Join(',', targetDays)} {monthName}");
 
             var showIdMatch = ShowIdRegex.Match(html);
             var showId = showIdMatch.Success ? showIdMatch.Groups[1].Value : "151991";
