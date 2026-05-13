@@ -126,16 +126,22 @@ public class TicketCheckerService : IAsyncDisposable
                 await page.EvaluateAsync(
                     $"showTimeCal(null, '{showId}', '{date.VenueCode}', '{date.EventId}', '{date.Day}')");
 
-                // Wait for time calendar to become visible
+                // Wait for the AJAX response to populate time slots
                 try
                 {
-                    await page.WaitForFunctionAsync(
-                        $"document.querySelector('#timeCal_{showId}').style.display === 'block'",
-                        null, new PageWaitForFunctionOptions { Timeout = 5_000 });
+                    await page.WaitForSelectorAsync(
+                        $"#timeCal_{showId} li.time a",
+                        new PageWaitForSelectorOptions { Timeout = 10_000 });
                 }
                 catch
                 {
-                    await page.WaitForTimeoutAsync(2_000);
+                    // Fall back to waiting for network idle if selector never appears
+                    try
+                    {
+                        await page.WaitForLoadStateAsync(LoadState.NetworkIdle,
+                            new PageWaitForLoadStateOptions { Timeout = 8_000 });
+                    }
+                    catch { }
                 }
 
                 var updatedHtml = await page.ContentAsync();
@@ -147,7 +153,7 @@ public class TicketCheckerService : IAsyncDisposable
                     .ToList();
 
                 sb.AppendLine();
-                sb.AppendLine($"{date.Day:D2}/{month:D2}/{year} ({date.Seats} slot(s) available):");
+                sb.AppendLine($"{date.Day:D2}/{month:D2}/{year} ({date.Seats} seat(s) available):");
 
                 if (slots.Count > 0)
                     foreach (var slot in slots)

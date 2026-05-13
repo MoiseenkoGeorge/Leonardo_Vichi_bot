@@ -47,12 +47,12 @@ public class TicketCheckerWorker : BackgroundService
                 sw.Stop();
                 _logger.LogInformation("Check completed in {Elapsed}ms. Result: {Message}", sw.ElapsedMilliseconds, message);
 
-                // if (available)
-                // {
+                if (available)
+                {
                     _logger.LogInformation("Sending Telegram alert...");
                     await _telegram.SendMessageAsync(message, stoppingToken);
                     _logger.LogInformation("Telegram alert sent");
-                // }
+                }
             }
             catch (Exception ex)
             {
